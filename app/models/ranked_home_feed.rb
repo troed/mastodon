@@ -216,6 +216,8 @@ class RankedHomeFeed < HomeFeed
     return [] if candidate_ids.empty?
 
     rows = Status.where(id: candidate_ids, visibility: %i(public unlisted))
+      .not_excluded_by_account(@account)
+      .not_domain_blocked_by_account(@account)
       .left_joins(:status_stat)
       .pluck(
         'statuses.id', 'statuses.account_id', 'statuses.local', 'statuses.uri',

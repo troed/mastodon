@@ -202,6 +202,14 @@ RSpec.describe RankedHomeFeed do
         expect(subject.get(20)).to eq [parent]
       end
 
+      it 'does not pull in posts from blocked authors' do
+        viewer.block!(tim)
+        push(Fabricate(:status, account: ana, thread: parent))
+        push(Fabricate(:status, account: bob, thread: parent))
+
+        expect(subject.get(20)).to eq []
+      end
+
       it 'does not pull in posts that are not publicly visible' do
         private_parent = Fabricate(:status, account: tim, visibility: :private)
         push(Fabricate(:status, account: ana, thread: private_parent))
