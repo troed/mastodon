@@ -178,6 +178,39 @@ RSpec.describe RankedHomeFeed do
       end
     end
 
+    context 'with replies in the feed' do
+      let(:tim)    { Fabricate(:account) }
+      let(:parent) { Fabricate(:status, account: tim) }
+
+      it 'does not surface a reply without further discussion' do
+        push(Fabricate(:status, account: ana, thread: parent))
+
+        expect(subject.get(20)).to eq []
+      end
+
+      it 'surfaces the discussed post once enough people reply' do
+        push(Fabricate(:status, account: ana, thread: parent))
+        push(Fabricate(:status, account: bob, thread: parent))
+
+        expect(subject.get(20)).to eq [parent]
+      end
+
+      it 'surfaces the discussed post when a liked author replies' do
+        3.times { Fabricate(:favourite, account: viewer, status: Fabricate(:status, account: ana)) }
+        push(Fabricate(:status, account: ana, thread: parent))
+
+        expect(subject.get(20)).to eq [parent]
+      end
+
+      it 'does not pull in posts that are not publicly visible' do
+        private_parent = Fabricate(:status, account: tim, visibility: :private)
+        push(Fabricate(:status, account: ana, thread: private_parent))
+        push(Fabricate(:status, account: bob, thread: private_parent))
+
+        expect(subject.get(20)).to eq []
+      end
+    end
+
     context 'when a feed entry no longer exists in the database' do
       let(:status) { Fabricate(:status, account: bob) }
 
