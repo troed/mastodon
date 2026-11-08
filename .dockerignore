@@ -18,6 +18,12 @@ vendor/bundle
 *~
 postgres
 postgres14
+pg_backup.sql
+redis_dump.rdb
+*.rdb
+ssh_*
+.env.production.remote
+AGENTS.md
 redis
 elasticsearch
 chart
